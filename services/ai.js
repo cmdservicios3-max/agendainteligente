@@ -17,7 +17,8 @@ const tools = [
           titulo: { type: "string", description: "El título del evento. Breve y conciso." },
           descripcion: { type: "string", description: "Detalles adicionales del evento." },
           fecha_inicio: { type: "string", description: "Fecha y hora de inicio en formato ISO 8601 (Ej: 2026-04-16T10:00:00-03:00)." },
-          fecha_fin: { type: "string", description: "Fecha y hora de fin en formato ISO 8601. Asume 1 hora de duración si el usuario no especificó." }
+          fecha_fin: { type: "string", description: "Fecha y hora de fin en formato ISO 8601. Asume 1 hora de duración si el usuario no especificó." },
+          minutos_alarma: { type: "integer", description: "(Opcional) Minutos de anticipación para la alarma. Usa 0 si es para el horario exacto del evento." }
         },
         required: ["titulo", "fecha_inicio", "fecha_fin"]
       }
@@ -63,7 +64,8 @@ const tools = [
            id_evento: { type: "string", description: "El ID único del evento." },
            titulo: { type: "string", description: "(Opcional) El nuevo título." },
            fecha_inicio: { type: "string", description: "(Opcional) Nueva fecha y hora de inicio ISO 8601 (-03:00)." },
-           fecha_fin: { type: "string", description: "(Opcional) Nueva fecha y hora de fin ISO 8601 (-03:00)." }
+           fecha_fin: { type: "string", description: "(Opcional) Nueva fecha y hora de fin ISO 8601 (-03:00)." },
+           minutos_alarma: { type: "integer", description: "(Opcional) Minutos previos al evento para sonar una alarma en el celular. Usa 0 para hora exacta." }
         },
         required: ["id_evento"]
       }
@@ -131,8 +133,10 @@ CONTEXTO TEMPORAL (CRÍTICO)
 REGLAS DE USO DE HERRAMIENTAS
 -----------------------------------
 
-CREAR EVENTO:
+CREAR EVENTO Y ALARMAS:
 - Si el usuario quiere agendar algo → usar \`crear_reunion\`.
+- Si el usuario menciona "avisarme", "recordame", "poné alarma": Extrae la cantidad de minutos de anticipación y envíalos en \`minutos_alarma\`. 
+- IMPORTANTE: Si el usuario dice "poné una alarma para dentro de 5 minutos", la hora de inicio es AHORA + 5min, y \`minutos_alarma\` debe ser 0 para que suene a esa hora exacta.
 
 MODIFICAR O BORRAR EVENTO:
 - Si el usuario pide modificar o borrar y NO tienes el ID:
@@ -214,7 +218,8 @@ REGLAS GENERALES
               summary: args.titulo,
               description: args.descripcion || '',
               start: args.fecha_inicio,
-              end: args.fecha_fin
+              end: args.fecha_fin,
+              minutosAlarma: args.minutos_alarma
             });
             toolResult = `¡Éxito! Evento creado. ID: ${evento.id}`;
           } 
@@ -239,7 +244,8 @@ REGLAS GENERALES
             const updated = await updateEvent(args.id_evento, {
                summary: args.titulo,
                start: args.fecha_inicio,
-               end: args.fecha_fin
+               end: args.fecha_fin,
+               minutosAlarma: args.minutos_alarma
             });
             toolResult = `¡Éxito! Evento actualizado. Nuevo horario de inicio: ${updated.start.dateTime || updated.start.date}`;
           }

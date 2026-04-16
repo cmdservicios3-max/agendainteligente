@@ -46,7 +46,7 @@ function getCalendarInstance() {
   }
 }
 
-async function createEvent({ summary, description, start, end }) {
+async function createEvent({ summary, description, start, end, minutosAlarma }) {
   const cal = getCalendarInstance();
   if (!cal) throw new Error("Google Calendar no está configurado (falta google-credentials.json)");
 
@@ -63,6 +63,13 @@ async function createEvent({ summary, description, start, end }) {
       timeZone: 'America/Argentina/Buenos_Aires',
     },
   };
+
+  if (minutosAlarma !== undefined) {
+    event.reminders = {
+      useDefault: false,
+      overrides: [{ method: 'popup', minutes: minutosAlarma }],
+    };
+  }
 
   const res = await cal.events.insert({
     calendarId: CALENDAR_ID,
@@ -99,7 +106,7 @@ async function deleteEvent(eventId) {
   return true;
 }
 
-async function updateEvent(eventId, { summary, description, start, end }) {
+async function updateEvent(eventId, { summary, description, start, end, minutosAlarma }) {
   const cal = getCalendarInstance();
   if (!cal) throw new Error("Google Calendar no está configurado (falta google-credentials.json)");
 
@@ -124,6 +131,13 @@ async function updateEvent(eventId, { summary, description, start, end }) {
     updatedData.end = {
       dateTime: end,
       timeZone: 'America/Argentina/Buenos_Aires',
+    };
+  }
+
+  if (minutosAlarma !== undefined) {
+    updatedData.reminders = {
+      useDefault: false,
+      overrides: [{ method: 'popup', minutes: minutosAlarma }],
     };
   }
 
