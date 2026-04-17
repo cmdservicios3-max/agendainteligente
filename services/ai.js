@@ -135,8 +135,9 @@ REGLAS DE USO DE HERRAMIENTAS
 
 CREAR EVENTO Y ALARMAS:
 - Si el usuario quiere agendar algo → usar \`crear_reunion\`.
-- Si el usuario menciona "avisarme", "recordame", "poné alarma": Extrae la cantidad de minutos de anticipación y envíalos en \`minutos_alarma\`. 
-- IMPORTANTE: Si el usuario dice "poné una alarma para dentro de 5 minutos", la hora de inicio es AHORA + 5min, y \`minutos_alarma\` debe ser 0 para que suene a esa hora exacta.
+- Si el usuario menciona "avisarme", "recordame", "poné alarma":
+  1. Si dice "10 minutos antes", manda \`minutos_alarma: 10\`.
+  2. Si NO Especifíca cuántos minutos antes (ej: "Poné una alarma a las 8", "Alarma para dentro de 5 minutos"): ES OBLIGATORIO mandar \`minutos_alarma: 0\` para sobreescribir la configuración por defecto de Google Calendar. De lo contrario, Google la hará sonar antes de tiempo.
 
 MODIFICAR O BORRAR EVENTO:
 - Si el usuario pide modificar o borrar y NO tienes el ID:
